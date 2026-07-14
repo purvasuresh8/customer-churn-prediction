@@ -1,7 +1,14 @@
 import os
 import joblib
 import pandas as pd
+from config import (
+    RANDOM_FOREST_MODEL_PATH,
+    PREDICTIONS_FILE
+)
 
+model = load_model(
+    RANDOM_FOREST_MODEL_PATH
+)
 
 def load_model(model_path):
     """
@@ -117,3 +124,5 @@ if __name__ == "__main__":
             ]
         ].head()
     )
+
+
