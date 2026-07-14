@@ -41,3 +41,13 @@ joblib.dump(
     logistic_model,
     "models/logistic_regression.pkl"
 )
+
+from config import (
+    RANDOM_FOREST_MODEL_PATH,
+    RANDOM_FOREST_PARAMS,
+    TEST_SIZE
+)
+
+rf_model = RandomForestClassifier(
+    **RANDOM_FOREST_PARAMS
+)
