@@ -4,7 +4,12 @@ import kagglehub
 from kagglehub import KaggleDatasetAdapter
 import pandas as pd
 from pathlib import Path
+from config import RAW_DATA_FILE
 
+df.to_csv(
+    RAW_DATA_FILE,
+    index=False
+)
 # Create data directory
 Path("data/raw").mkdir(parents=True, exist_ok=True)
 
@@ -14,6 +19,7 @@ df = kagglehub.load_dataset(
     "blastchar/telco-customer-churn",
     "WA_Fn-UseC_-Telco-Customer-Churn.csv"
 )
+
 
 # Save locally
 output_path = "data/raw/customer_churn.csv"
