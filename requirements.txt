@@ -6,3 +6,5 @@ seaborn
 streamlit
 joblib
 kagglehub[pandas-datasets]
+streamlit
+plotly
