@@ -30,3 +30,14 @@ evaluate_and_visualize(
 
 print(df.head())
 print(df.shape)
+import joblib
+
+joblib.dump(
+    random_forest_model,
+    "models/random_forest.pkl"
+)
+
+joblib.dump(
+    logistic_model,
+    "models/logistic_regression.pkl"
+)
