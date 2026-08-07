@@ -710,10 +710,52 @@ streamlit run src/dashboard.py
 ```
 
 ---
+## SQL Analytics
+
+A SQLite analytics layer was developed to support business intelligence and customer behavior analysis using SQL.
+
+Implemented Analyses:
+
+- Customer churn distribution
+- High-value customer churn analysis
+- Customer engagement segmentation
+- Business-focused churn reporting
+
+Database:
+
+database/
+└── churn.db
+
+Outputs:
+
+reports/
+├── churn_distribution_sql.csv
+├── high_value_customer_sql.csv
+└── engagement_analysis_sql.csv
+
+## SQL Business Insights
+
+### Churn Distribution
+
+- Active Customers: 5,164
+- Churned Customers: 1,857
+- Overall Churn Rate: 26.45%
+
+### High Value Customer Analysis
+
+- Standard Customer Churn Rate: 17.78%
+- High Value Customer Churn Rate: 35.14%
+
+### Engagement Analysis
+
+- High Engagement Churn Rate: 11.68%
+- Medium Engagement Churn Rate: 21.59%
+- Low Engagement Churn Rate: 40.08%
+
+These findings complement machine learning and SHAP explainability results, helping identify customer segments that should be prioritized for retention efforts.
 
 ## Future Enhancements
 
-- SQL Analytics Layer
 - XGBoost Modeling
 - Hyperparameter Optimization
 - PDF Executive Reporting
