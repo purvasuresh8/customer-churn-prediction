@@ -124,3 +124,35 @@ def preprocess_data(df):
     df = scale_features(df)
 
     return df
+
+from pathlib import Path
+from data_loader import load_raw_data
+
+if __name__ == "__main__":
+
+    # Load dataset
+    df = load_raw_data()
+
+    # Run preprocessing pipeline
+    df = preprocess_data(df)
+
+    # Create output directory
+    Path("data/processed").mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    # Save cleaned dataset
+    output_file = "data/processed/cleaned_data.csv"
+
+    df.to_csv(
+        output_file,
+        index=False
+    )
+
+    print("Preprocessing completed successfully!")
+    print(f"Saved file: {output_file}")
+    print(f"Dataset shape: {df.shape}")
+    print("\nFirst 5 rows:")
+    print(df.head())
+    

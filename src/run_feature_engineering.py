@@ -1,17 +1,39 @@
-from data_loader import load_data
-from preprocessing import preprocess_data
+import pandas as pd
 from feature_engineering import engineer_features
 
-df = load_data()
 
-df = preprocess_data(df)
+def main():
 
-df = engineer_features(df)
+    df = pd.read_csv(
+        "data/processed/cleaned_data.csv"
+    )
 
-df.to_csv(
-    "data/processed/feature_engineered_data.csv",
-    index=False
-)
+    df = engineer_features(df)
 
-print(df.head())
-print(df.shape)
+    # Convert engineered categorical features
+    df = pd.get_dummies(
+        df,
+        columns=[
+            "TenureGroup",
+            "ChargeSegment"
+        ],
+        drop_first=True
+    )
+
+    output_file = (
+        "data/processed/feature_engineered_data.csv"
+    )
+
+    df.to_csv(
+        output_file,
+        index=False
+    )
+
+    print("Feature engineering completed!")
+    print(f"Saved file: {output_file}")
+    print(f"Shape: {df.shape}")
+
+
+if __name__ == "__main__":
+    main()
+    

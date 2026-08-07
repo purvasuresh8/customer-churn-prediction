@@ -231,7 +231,7 @@ def evaluate_and_visualize(
         model_name
     )
 
-    if feature_names:
+    if feature_names is not None and len(feature_names) > 0:
         save_feature_importance(
             model,
             feature_names,
