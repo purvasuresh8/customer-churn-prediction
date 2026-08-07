@@ -1,7 +1,10 @@
 import os
+import joblib
 import shap
 import pandas as pd
 import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
 
 
 class ModelExplainer:
@@ -13,13 +16,11 @@ class ModelExplainer:
         self,
         model,
         X_train,
-        X_test,
-        feature_names=None
+        X_test
     ):
         self.model = model
         self.X_train = X_train
         self.X_test = X_test
-        self.feature_names = feature_names
 
         os.makedirs(
             "visualizations/shap",
@@ -30,7 +31,6 @@ class ModelExplainer:
         """
         Create SHAP explainer.
         """
-
         return shap.Explainer(
             self.model,
             self.X_train
@@ -40,28 +40,23 @@ class ModelExplainer:
         """
         Compute SHAP values.
         """
-
         explainer = self.get_explainer()
 
-        shap_values = explainer(
+        return explainer(
             self.X_test
         )
-
-        return shap_values
 
     def generate_summary_plot(self):
         """
         Generate SHAP summary plot.
         """
 
-        shap_values = (
-            self.calculate_shap_values()
-        )
+        shap_values = self.calculate_shap_values()
 
         plt.figure()
 
         shap.summary_plot(
-            shap_values,
+            shap_values.values,
             self.X_test,
             show=False
         )
@@ -76,17 +71,15 @@ class ModelExplainer:
         plt.close()
 
         print(
-            "SHAP Summary Plot saved."
+            "✅ SHAP summary plot saved."
         )
 
     def generate_bar_plot(self):
         """
-        Generate feature importance bar plot.
+        Generate SHAP feature importance plot.
         """
 
-        shap_values = (
-            self.calculate_shap_values()
-        )
+        shap_values = self.calculate_shap_values()
 
         plt.figure()
 
@@ -103,7 +96,7 @@ class ModelExplainer:
         plt.close()
 
         print(
-            "SHAP Feature Importance Plot saved."
+            "✅ SHAP feature importance plot saved."
         )
 
     def generate_waterfall_plot(
@@ -114,9 +107,7 @@ class ModelExplainer:
         Explain a single prediction.
         """
 
-        shap_values = (
-            self.calculate_shap_values()
-        )
+        shap_values = self.calculate_shap_values()
 
         plt.figure()
 
@@ -133,42 +124,12 @@ class ModelExplainer:
         plt.close()
 
         print(
-            "SHAP Waterfall Plot saved."
-        )
-
-    def generate_dependence_plot(
-        self,
-        feature_name
-    ):
-        """
-        Show impact of one feature.
-        """
-
-        shap_values = (
-            self.calculate_shap_values()
-        )
-
-        shap.dependence_plot(
-            feature_name,
-            shap_values.values,
-            self.X_test,
-            show=False
-        )
-
-        plt.savefig(
-            f"visualizations/shap/{feature_name}_dependence.png",
-            bbox_inches="tight"
-        )
-
-        plt.close()
-
-        print(
-            f"{feature_name} dependence plot saved."
+            "✅ SHAP waterfall plot saved."
         )
 
     def generate_all_reports(self):
         """
-        Generate all explainability outputs.
+        Generate all explainability reports.
         """
 
         self.generate_summary_plot()
@@ -178,7 +139,7 @@ class ModelExplainer:
         self.generate_waterfall_plot()
 
         print(
-            "All SHAP reports generated."
+            "\n✅ All SHAP reports generated."
         )
 
 
@@ -188,7 +149,7 @@ def calculate_top_churn_drivers(
     X_test
 ):
     """
-    Return most important features.
+    Calculate feature importance using SHAP values.
     """
 
     explainer = shap.Explainer(
@@ -196,12 +157,15 @@ def calculate_top_churn_drivers(
         X_train
     )
 
-    shap_values = explainer(X_test)
+    shap_values = explainer(
+        X_test
+    )
 
     importance_df = pd.DataFrame({
         "Feature": X_test.columns,
-        "Importance":
-            abs(shap_values.values).mean(axis=0)
+        "Importance": (abs(shap_values.values)
+        .mean(axis=0)
+        )
     })
 
     importance_df = (
@@ -210,6 +174,93 @@ def calculate_top_churn_drivers(
             by="Importance",
             ascending=False
         )
+        .reset_index(
+            drop=True
+        )
     )
 
     return importance_df
+
+
+def save_top_drivers(
+    model,
+    X_train,
+    X_test
+):
+    """
+    Save top churn drivers report.
+    """
+
+    os.makedirs(
+        "reports",
+        exist_ok=True
+    )
+
+    top_drivers = calculate_top_churn_drivers(
+        model,
+        X_train,
+        X_test
+    )
+
+    top_drivers.to_csv(
+        "reports/top_churn_drivers.csv",
+        index=False
+    )
+
+    print(
+        "\n✅ Top churn drivers saved."
+    )
+
+    print(
+        top_drivers.head(10)
+    )
+
+
+if __name__ == "__main__":
+
+    print("Loading dataset...")
+
+    df = pd.read_csv(
+        "data/processed/feature_engineered_data.csv"
+    )
+
+    X = df.drop(
+        "Churn",
+        axis=1
+    )
+    X = X.astype(float)
+
+    y = df["Churn"]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=0.20,
+        random_state=42,
+        stratify=y
+    )
+
+    print("Loading model...")
+
+    model = joblib.load(
+        "models/logistic_regression.pkl"
+    )
+
+    explainer = ModelExplainer(
+        model=model,
+        X_train=X_train,
+        X_test=X_test
+    )
+
+    explainer.generate_all_reports()
+
+    save_top_drivers(
+        model,
+        X_train,
+        X_test
+    )
+
+    print(
+        "\n✅ Explainability pipeline completed."
+    )
+    
