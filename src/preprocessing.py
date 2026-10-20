@@ -2,26 +2,42 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 
+
 def clean_data(df):
     """
-    Perform data cleaning operations.
+    Clean the raw customer data while preserving
+    original categories for feature engineering.
     """
 
-    # Remove duplicates
+    # Work on a copy so the original DataFrame is unchanged.
+    df = df.copy()
+
+    # Remove duplicate rows.
     df = df.drop_duplicates()
 
-    # Convert TotalCharges to numeric
+    # Convert TotalCharges to numeric.
     df["TotalCharges"] = pd.to_numeric(
         df["TotalCharges"],
         errors="coerce"
     )
 
-    # Fill missing values
+    # Customers with zero tenure and missing charges
+    # are treated as having zero total charges.
+    zero_tenure = df["tenure"].eq(0)
+    missing_charges = df["TotalCharges"].isna()
+
+    df.loc[
+        zero_tenure & missing_charges,
+        "TotalCharges"
+    ] = 0
+
+    # Fill any other missing TotalCharges with the median.
     df["TotalCharges"] = df["TotalCharges"].fillna(
         df["TotalCharges"].median()
     )
 
     return df
+
 
 
 def encode_target(df):
