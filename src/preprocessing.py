@@ -142,7 +142,7 @@ def preprocess_data(df):
     return df
 
 from pathlib import Path
-from data_loader import load_raw_data
+from src.data_loader import load_raw_data
 
 if __name__ == "__main__":
 

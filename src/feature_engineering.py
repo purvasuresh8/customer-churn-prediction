@@ -2,14 +2,13 @@ import pandas as pd
 import numpy as np
 
 
+
 def create_tenure_groups(df):
-    """
-    Group customers by tenure.
-    """
+    """Group customers by how long they have stayed."""
 
     df["TenureGroup"] = pd.cut(
         df["tenure"],
-        bins=[0, 12, 24, 48, 72],
+        bins=[-1, 12, 24, 48, 72],
         labels=[
             "New",
             "Developing",
@@ -19,6 +18,7 @@ def create_tenure_groups(df):
     )
 
     return df
+
 
 
 def create_monthly_charge_segments(df):
@@ -35,17 +35,18 @@ def create_monthly_charge_segments(df):
     return df
 
 
-def create_avg_monthly_spend(df):
-    """
-    Approximate average spend per month.
-    """
 
-    df["AvgMonthlySpend"] = (
-        df["TotalCharges"] /
-        (df["tenure"] + 1)
+def create_avg_monthly_spend(df):
+    """Estimate average monthly spend over customer tenure."""
+
+    df["AvgMonthlySpend"] = np.where(
+        df["tenure"] > 0,
+        df["TotalCharges"] / df["tenure"],
+        df["MonthlyCharges"]
     )
 
     return df
+
 
 
 def create_customer_value_flag(df):
